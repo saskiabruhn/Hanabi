@@ -1,0 +1,65 @@
+{'current_player': 0,
+'current_player_offset': 0,
+'life_tokens': 3,
+'information_tokens': 8,
+'num_players': 2,
+'deck_size': 40,
+'fireworks': {'R': 0, 'Y': 0, 'G': 0, 'W': 0, 'B': 0},
+'legal_moves': [
+	{'action_type': 'PLAY', 'card_index': 0},
+	{'action_type': 'PLAY', 'card_index': 1},
+	{'action_type': 'PLAY', 'card_index': 2},
+	{'action_type': 'PLAY', 'card_index': 3},
+	{'action_type': 'PLAY', 'card_index': 4},
+	{'action_type': 'REVEAL_COLOR', 'target_offset': 1, 'color': 'R'},
+	{'action_type': 'REVEAL_COLOR', 'target_offset': 1, 'color': 'Y'},
+	{'action_type': 'REVEAL_COLOR', 'target_offset': 1, 'color': 'B'},
+	{'action_type': 'REVEAL_RANK', 'target_offset': 1, 'rank': 0},
+	{'action_type': 'REVEAL_RANK', 'target_offset': 1, 'rank': 2},
+	{'action_type': 'REVEAL_RANK', 'target_offset': 1, 'rank': 3},
+	{'action_type': 'REVEAL_RANK', 'target_offset': 1, 'rank': 4}],
+'legal_moves_as_int': [5, 6, 7, 8, 9, 10, 11, 14, 15, 17, 18, 19],
+'observed_hands': [
+	[{'color': None, 'rank': -1},
+	{'color': None, 'rank': -1},
+	{'color': None, 'rank': -1},
+	{'color': None, 'rank': -1},
+	{'color': None, 'rank': -1}],
+	[{'color': 'B', 'rank': 2},
+	{'color': 'R', 'rank': 0},
+	{'color': 'Y', 'rank': 4},
+	{'color': 'B', 'rank': 3},
+	{'color': 'Y', 'rank': 0}]
+		],
+'discard_pile': [],
+'card_knowledge': [
+    [{'color': None, 'rank': None},
+	{'color': None, 'rank': None},
+	{'color': None, 'rank': None},
+	{'color': None, 'rank': None},
+	{'color': None, 'rank': None}],
+	[{'color': None, 'rank': None},
+	{'color': None, 'rank': None},
+	{'color': None, 'rank': None},
+	{'color': None, 'rank': None},
+	{'color': None, 'rank': None}]],
+'vectorized': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+'pyhanabi': Life tokens: 3
+Info tokens: 8
+Fireworks: R0 Y0 G0 W0 B0
+Hands:
+Cur player
+XX || XX|RYGWB12345
+XX || XX|RYGWB12345
+XX || XX|RYGWB12345
+XX || XX|RYGWB12345
+XX || XX|RYGWB12345
+-----
+B3 || XX|RYGWB12345
+R1 || XX|RYGWB12345
+Y5 || XX|RYGWB12345
+B4 || XX|RYGWB12345
+Y1 || XX|RYGWB12345
+Deck size: 40
+Discards:}
