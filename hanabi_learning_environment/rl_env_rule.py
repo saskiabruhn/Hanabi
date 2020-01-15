@@ -38,36 +38,22 @@ class Runner(object):
 
   def run(self):
     """Run episodes."""
-    rewards = []
+
     for episode in range(flags['num_episodes']):
       observations = self.environment.reset()
       agents = [self.agent_class(self.agent_config)
                 for _ in range(self.flags['players'])]
       done = False
-      episode_reward = 0
       while not done:
         for agent_id, agent in enumerate(agents):
           observation = observations['player_observations'][agent_id]
+          print(observation['pyhanabi'])
           if observation['current_player'] == agent_id:
             if observation['current_player_offset'] == 0:
-              old_observation = observation
-              action, observations, reward, done, unused_info = agent.act(observation, self.environment)
-              current_player_observation = observation
-              current_player_observation_encoded = current_player_observation['vectorized']
-              print(current_player_observation)
+              action = agent.act(observation)
+              observations, reward, done, unused_info = self.environment.step(action)
+              print(action)
               print('-------------------------------------------------------')
-              # done = True
-            # observation1 = observations['player_observations'][agent_id]
-            # agent.learn(observation, action, observation1, reward)
-
-          # Make an environment step.
-        # print('Agent: {} action: {}'.format(observation['current_player'],
-        #                                     action))
-        episode_reward += reward
-      rewards.append(episode_reward)
-      # print('Running episode: %d' % episode)
-      # print('Max Reward: %.3f' % max(rewards))
-    return rewards
 
 if __name__ == "__main__":
   flags = {'players': 2, 'num_episodes': 1, 'agent_class': 'RuleBasedAgent'}
