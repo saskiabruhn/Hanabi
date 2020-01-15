@@ -10,4 +10,11 @@ pip install .                    # or pip install git+repo_url to install direct
 
 python rl_env_example.py         # Runs RL episodes
 python game_example.py           # Plays a game using the lower level interface
+
+### Rule based Agent
 ```
+- in /hanabi_learning_environment/agents there is the rule_based_agent.py and the rules.py in which the rules for the agent are implemented
+
+- in /hanabi_learning_environment there is the rl_env_example.py which is an expanded version of the file from /examples which is executable
+
+- in /hanabi_learning_environment there is the rl_env_rule.py which is a slightly different version of the file above. This is also executable.
