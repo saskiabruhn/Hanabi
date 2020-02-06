@@ -30,6 +30,7 @@ def PlaySafeCard(observation):
 
     if True not in playable:
         return None
+
     elif playable.count(True) == 1:
         safe_card_idx = playable.index(True)
         return {'action_type': 'PLAY', 'card_index': safe_card_idx}
@@ -69,16 +70,14 @@ def TellPlayableCard(observation):
     :return:
     """
     if observation['information_tokens'] == 0:
-        # print('out of info tokens')
         return None
 
     playable = []
     possible_actions = []
     for card in observation['observed_hands'][1]:
         playable.append(CardPlayable(card, observation['fireworks']))
-    # print(playable)
+
     if True not in playable:
-        # print('no playable cards')
         return None
 
     elif playable.count(True) == 1:
@@ -86,13 +85,7 @@ def TellPlayableCard(observation):
 
     else:
         indices = [playable.index(i) for i in playable if i is True]
-        # for i, bool in enumerate(playable):
-        #     if bool is True:
-        #         indices.append(i)
         card_idx = random.choice(indices)
-    #     print('indices: ')
-    #     print(indices)
-    # print('card to reveal info about:', observation['observed_hands'][1][card_idx]['color'])#, ['card_knowledge'][1])
 
     if observation['card_knowledge'][1][card_idx]['color'] is None:
         possible_actions.append({'action_type': 'REVEAL_COLOR', 'target_offset': 1, 'color': observation['observed_hands'][1][card_idx]['color']})
@@ -101,12 +94,9 @@ def TellPlayableCard(observation):
 
     if possible_actions:
         return random.choice(possible_actions)
+
     else:
-        # print('no possible actions')
         return None
-
-
-
 
 def TellRandomly(observation):
     """
@@ -125,6 +115,7 @@ def TellRandomly(observation):
 
     if possible_actions:
         return random.choice(possible_actions)
+
     else:
         return None
 

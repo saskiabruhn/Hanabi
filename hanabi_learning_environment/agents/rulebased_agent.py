@@ -61,7 +61,7 @@ class RuleBasedAgent(Agent):
     """
     self.config = config
 
-  def act(self, observation, environment):
+  def act(self, observation):
     """Act based on an observation.
 
     Args:
@@ -95,7 +95,7 @@ class RuleBasedAgent(Agent):
       action: dict, mapping to a legal action taken by this agent. The following
         actions are supported:
           - { 'action_type': 'PLAY', 'card_index': int }
-          - { 'action_type': 'DISCARD', 'card_index': int }
+          - { 'action_type': 'DISCARD', 'card_index': int }rewar
           - {
               'action_type': 'REVEAL_COLOR',
               'color': str,
@@ -108,22 +108,18 @@ class RuleBasedAgent(Agent):
             }
     """
 
-    action = random.choice(observation['legal_moves'])
-    action = rules.PlaySafeCard(observation)
-    if action is None:
-      action = rules.OsawaDiscard(observation)
-    if action is None:
-      action = rules.TellPlayableCard(observation)
-    if action is None:
-      action = rules.TellRandomly(observation)
-    if action is None:
-      action = rules.DiscardRandomly(observation)
 
+    if observation['current_player_offset'] == 0:
+      action = rules.PlaySafeCard(observation)
+      if action is None:
+        action = rules.OsawaDiscard(observation)
+      if action is None:
+        action = rules.TellPlayableCard(observation)
+      if action is None:
+        action = rules.TellRandomly(observation)
+      if action is None:
+        action = rules.DiscardRandomly(observation)
+      return action
 
-
-    observations, reward, done, unused_info = environment.step(action)
-
-    return action, observations, reward, done, unused_info
-
-
-  # def Qnet(self, observation0, action0, observation1, reward):
+    else:
+      return None
