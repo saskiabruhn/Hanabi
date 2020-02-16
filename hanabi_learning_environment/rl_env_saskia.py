@@ -21,9 +21,10 @@ import rl_env
 from agents.random_agent import RandomAgent
 from agents.simple_agent import SimpleAgent
 from agents.rulebased_agent import RuleBasedAgent
+from agents.selfintentional_agent import SelfIntentionalAgent
 from pyhanabi import ObservationEncoder
 
-AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'RuleBasedAgent': RuleBasedAgent}
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'RuleBasedAgent': RuleBasedAgent, 'SelfIntentionalAgent': SelfIntentionalAgent}
 
 
 class Runner(object):
@@ -32,7 +33,7 @@ class Runner(object):
   def __init__(self, flags):
     """Initialize runner."""
     self.flags = flags
-    self.agent_config = {'players': flags['players']}
+    self.agent_config = {'players': ['players']}
     self.environment = rl_env.make('Hanabi-Full', num_players=flags['players'])
     self.agent_class = AGENT_CLASSES[flags['agent_class']]
 
@@ -49,17 +50,20 @@ class Runner(object):
       while not done:
         for agent_id, agent in enumerate(agents):
           observation = observations['player_observations'][agent_id]
+          # card_knowledge = [card.__str__() for card in observation['pyhanabi'].card_knowledge()[0]]
           print(observation)
           action = agent.act(observation)
           if observation['current_player'] == agent_id:
             assert action is not None
             current_player_action = action
+
           else:
             assert action is None
+        print('---------------------------------------------------------------')
 
         # Make an environment step.
-        print('Agent: {} action: {}'.format(observation['current_player'],
-                                            current_player_action))
+        # print('Agent: {} action: {}'.format(observation['current_player'],
+        #                                     current_player_action))
         observations, reward, done, unused_info = self.environment.step(
             current_player_action)
         episode_reward += reward
@@ -102,7 +106,7 @@ class Runner(object):
   #   return rewards
 
 if __name__ == "__main__":
-  flags = {'players': 2, 'num_episodes': 1, 'agent_class': 'RuleBasedAgent'}
+  flags = {'players': 2, 'num_episodes': 1, 'agent_class': 'SelfIntentionalAgent'}
   options, arguments = getopt.getopt(sys.argv[1:], '',
                                      ['players=',
                                       'num_episodes=',

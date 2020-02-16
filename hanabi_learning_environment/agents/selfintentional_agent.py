@@ -41,42 +41,24 @@ class SelfIntentionalAgent(Agent):
       AgentError: Custom exceptions.
     """
     self.config = config
+    self.last_action = None
     self.memory = [] # stores observations since last turn
-    #initial mental state RGBWY, 12345
+    self.mental_state = []
+    self.unplayed_cards = [[3, 3, 3, 3, 3],
+                           [2, 2, 2, 2, 2],
+                           [2, 2, 2, 2, 2],
+                           [2, 2, 2, 2, 2],
+                           [1, 1, 1, 1, 1]]
+
+    # initial mental state RGBWY, 12345
     # mental_state[card][rank][color]
-    self.color_encoding = {'R':0, 'G': 1, 'B': 2, 'W': 3, 'Y': 4}
-    self.mental_state = np.array([[[3, 3, 3, 3, 3],
-                                  [2, 2, 2, 2, 2],
-                                  [2, 2, 2, 2, 2],
-                                  [2, 2, 2, 2, 2],
-                                  [1, 1, 1, 1, 1]],
-                                 [[3, 3, 3, 3, 3],
-                                  [2, 2, 2, 2, 2],
-                                  [2, 2, 2, 2, 2],
-                                  [2, 2, 2, 2, 2],
-                                  [1, 1, 1, 1, 1]],
-                                 [[3, 3, 3, 3, 3],
-                                  [2, 2, 2, 2, 2],
-                                  [2, 2, 2, 2, 2],
-                                  [2, 2, 2, 2, 2],
-                                  [1, 1, 1, 1, 1]],
-                                 [[3, 3, 3, 3, 3],
-                                  [2, 2, 2, 2, 2],
-                                  [2, 2, 2, 2, 2],
-                                  [2, 2, 2, 2, 2],
-                                  [1, 1, 1, 1, 1]],
-                                 [[3, 3, 3, 3, 3],
-                                  [2, 2, 2, 2, 2],
-                                  [2, 2, 2, 2, 2],
-                                  [2, 2, 2, 2, 2],
-                                  [1, 1, 1, 1, 1]]])
-
-
-      # self.mental_state = {'R':{'1': 3, '2': 2, '3': 2, '4': 2, '5': 1},
-      #                      'G':{'1': 3, '2': 2, '3': 2, '4': 2, '5': 1},
-      #                      'B':{'1': 3, '2': 2, '3': 2, '4': 2, '5': 1},
-      #                      'W':{'1': 3, '2': 2, '3': 2, '4': 2, '5': 1},
-      #                      'Y':{'1': 3, '2': 2, '3': 2, '4': 2, '5': 1}, }
+    self.color_encoding = {'R': 0, 'G': 1, 'B': 2, 'W': 3, 'Y': 4}
+    for i in range(5):
+      self.mental_state.append([[3, 3, 3, 3, 3],
+                                [2, 2, 2, 2, 2],
+                                [2, 2, 2, 2, 2],
+                                [2, 2, 2, 2, 2],
+                                [1, 1, 1, 1, 1]])
 
   def reset(self, config):
     r"""Reset the agent with a new config.
@@ -97,68 +79,88 @@ class SelfIntentionalAgent(Agent):
     """
     self.config = config
 
-
   def update_memory(self, observation):
     self.memory.append(observation)
-    if len(self.memory) > self.config['players']:
-      self.memory.pop(0)
+    # if len(self.memory) > self.config['players']:
+    #   self.memory.pop(0)
 
-  def observation_diff(self, observation):
-    last_observation = self.memory[-2]
-    diff = {'R':[], 'G':[], 'B':[], 'W':[], 'Y':[]}
+  def update_unplayed_cards(self, observation):
+    cards = [[0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0]]
 
     for key in observation['fireworks'].keys():
-      if last_observation['fireworks'][key] != observation['fireworks'][key]:
-        diff[key].append(observation['fireworks'][key])
+      if observation['fireworks'][key] != 0:
+        for rank in range(observation['fireworks'][key]):
+          cards[rank][self.color_encoding[key]] +=1
+          if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
+            print('mistake in fireworks')
 
-    for h, hand in enumerate(observation['observed_hands']):
-      for c, card in enumerate(hand):
-        if card['color'] != last_observation['observed_hands'][h][c]['color']:
-          diff[card['color']].append(card['rank'])
-        if card['rank'] != last_observation['observed_hands'][h][c]['rank']:
-          diff[card['color']].append(card['rank'])
+    for d in observation['discard_pile']:
+      cards[d['rank']][self.color_encoding[d['color']]] += 1
+      if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
+        print('mistake in discardpile')
 
-    for k, knowledge in enumerate(observation['card_knowledge']):
-      for c, card in enumerate(knowledge):
-        if card['color'] != last_observation['card_knowledge'][k][c]['color']:
-          diff[card['color']].append(card['rank'])
-        if card['rank'] != last_observation['card_knowledge'][k][c]['rank']:
-          diff[card['color']].append(card['rank'])
+    for hand in observation['observed_hands']:
+      for c in hand:
+        if c['color'] is not None and c['rank'] != -1:
+          cards[c['rank']][self.color_encoding[c['color']]] += 1
+          if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
+            print('mistake in hands')
 
-    if len(observation['discard_pile']) > len(last_observation['discard_pile']):
-      diff[observation['discard_pile'][-1]['color']].append(observation['discard_pile'][-1]['rank'])
+    for c in observation['card_knowledge'][0]:
+      if c['color'] is not None and c['rank'] is not None:
+        cards[c['rank']][self.color_encoding[c['color']]] += 1
+        if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
+          print('mistake in knowledge')
 
-    return diff
+    print('counted cards: ', cards)
+    print(self.last_action)
+    cards_in_game = [[3, 3, 3, 3, 3],
+                     [2, 2, 2, 2, 2],
+                     [2, 2, 2, 2, 2],
+                     [2, 2, 2, 2, 2],
+                     [1, 1, 1, 1, 1]]
+
+    for r, rank in enumerate(self.unplayed_cards):
+      for color in range(len(rank)):
+        self.unplayed_cards[r][color] = cards_in_game[r][color] - cards[r][color]
+
+    print('unplayed cards', self.unplayed_cards)
 
 
+  # in here sth goes wrong
   def update_mental_state(self, observation):
-      for k, knowledge in enumerate(observation['card_knowledge']):
-          for c, card in enumerate(knowledge):
-              if card['color'] != last_observation['card_knowledge'][k][c]['color']:
-                  if card['rank'] is not None:
-                      self.mental_state[c].fill(0)
-                      self.mental_state[c][card['rank']-1][self.color_encoding[card['color']]] = 1
-                  else:
-                      for i in range(5):
-                          if i != self.color_encoding[card['color']]:
-                              self.mental_state[c][:][i].fill(0)
+    card_knowledge = [card.__str__() for card in observation['pyhanabi'].card_knowledge()[0]]
+    print(card_knowledge)
 
-              if card['rank'] != last_observation['card_knowledge'][k][c]['rank']:
-                  if card['color'] is not None:
-                      self.mental_state[c].fill(0)
-                      self.mental_state[c][card['rank'] - 1][self.color_encoding[card['color']]] = 1
-                  else:
-                      for i in range(5):
-                          if i != card['rank']:
-                              self.mental_state[c][i][:].fill(0)
+    if self.last_action is not None:
+      if self.last_action['action_type'] == 'DISCARD' or self.last_action['action_type'] == 'PLAY':
+
+        self.mental_state.pop(self.last_action['card_index'])
+        self.mental_state.append(self.unplayed_cards)
 
 
-      observation_diff = observation_diff(observation)
-      for card in self.mental_state:
-          for rank in card:
-              for color in rank:
+    for card_idx, knowledge in enumerate(card_knowledge):
+      possibility_knowledge = knowledge.split('|')[1]
 
+      for color in ['R','G', 'B', 'W', 'Y']:
+        if color not in possibility_knowledge:
+          for i in range(5):
+            self.mental_state[card_idx][i][self.color_encoding[color]] = 0
 
+      for rank in ['1','2','3','4','5']:
+        if rank not in possibility_knowledge:
+          for i in range(5):
+            self.mental_state[card_idx][int(rank)-1][i] = 0
+
+    for i, card in enumerate(self.mental_state):
+      for r, rank in enumerate(card):
+        for c, color in enumerate(rank):
+          if self.mental_state[i][r][c] != 0:
+            self.mental_state[i][r][c] = self.unplayed_cards[r][c]
 
 
   def act(self, observation):
@@ -207,12 +209,16 @@ class SelfIntentionalAgent(Agent):
               'target_offset': int >=0
             }
     """
-    update_memory(observation)
+    # self.update_memory(observation)
+    self.update_unplayed_cards(observation)
+    self.update_mental_state(observation)
+    # print(self.mental_state)
 
 
 
-
+    # print('unplayed cards: ', self.unplayed_cards)
     if observation['current_player_offset'] == 0:
+      print('Current Player Mental State: ', self.mental_state)
 
       action = rules.PlaySafeCard(observation)
       if action is None:
@@ -223,7 +229,9 @@ class SelfIntentionalAgent(Agent):
         action = rules.TellRandomly(observation)
       if action is None:
         action = rules.DiscardRandomly(observation)
+      self.last_action = action
       return action
 
     else:
+      print('Other players menta; state: ', self.mental_state)
       return None
