@@ -13,7 +13,6 @@
 # limitations under the License.
 """Random Agent."""
 
-import numpy as np
 from hanabi_learning_environment.rl_env import Agent
 import agents.rules as rules
 
@@ -138,7 +137,6 @@ class SelfIntentionalAgent(Agent):
 
     if self.last_action is not None:
       if self.last_action['action_type'] == 'DISCARD' or self.last_action['action_type'] == 'PLAY':
-
         self.mental_state.pop(self.last_action['card_index'])
         self.mental_state.append(self.unplayed_cards)
 
@@ -210,14 +208,15 @@ class SelfIntentionalAgent(Agent):
             }
     """
     # self.update_memory(observation)
-    self.update_unplayed_cards(observation)
-    self.update_mental_state(observation)
+
     # print(self.mental_state)
 
 
 
     # print('unplayed cards: ', self.unplayed_cards)
     if observation['current_player_offset'] == 0:
+      self.update_unplayed_cards(observation)
+      self.update_mental_state(observation)
       print('Current Player Mental State: ', self.mental_state)
 
       action = rules.PlaySafeCard(observation)
