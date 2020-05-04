@@ -17,6 +17,7 @@ for i in range(5):
 
 
 for i in range(5):
-  mental_state[0][i][1] = 0
+  mental_state[0][0][i] = 0
 
 print(mental_state)
+

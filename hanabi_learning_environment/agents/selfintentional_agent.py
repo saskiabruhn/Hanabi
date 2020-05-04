@@ -13,6 +13,7 @@
 # limitations under the License.
 """Random Agent."""
 
+import copy
 from hanabi_learning_environment.rl_env import Agent
 import agents.rules as rules
 
@@ -94,29 +95,29 @@ class SelfIntentionalAgent(Agent):
       if observation['fireworks'][key] != 0:
         for rank in range(observation['fireworks'][key]):
           cards[rank][self.color_encoding[key]] +=1
-          if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
-            print('mistake in fireworks')
+          # if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
+          #   print('mistake in fireworks')
 
     for d in observation['discard_pile']:
       cards[d['rank']][self.color_encoding[d['color']]] += 1
-      if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
-        print('mistake in discardpile')
+      # if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
+      #   print('mistake in discardpile')
 
     for hand in observation['observed_hands']:
       for c in hand:
         if c['color'] is not None and c['rank'] != -1:
           cards[c['rank']][self.color_encoding[c['color']]] += 1
-          if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
-            print('mistake in hands')
+          # if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
+          #   print('mistake in hands')
 
-    for c in observation['card_knowledge'][0]:
-      if c['color'] is not None and c['rank'] is not None:
-        cards[c['rank']][self.color_encoding[c['color']]] += 1
-        if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
-          print('mistake in knowledge')
+    # for c in observation['card_knowledge'][0]:
+    #   if c['color'] is not None and c['rank'] is not None:
+    #     cards[c['rank']][self.color_encoding[c['color']]] += 1
+    #     if 4 in cards[0] or 3 in cards[1] or 3 in cards[2] or 3 in cards[3] or 2 in cards[4]:
+    #       print('mistake in knowledge')
 
     print('counted cards: ', cards)
-    print(self.last_action)
+    print('last action: ', self.last_action)
     cards_in_game = [[3, 3, 3, 3, 3],
                      [2, 2, 2, 2, 2],
                      [2, 2, 2, 2, 2],
@@ -131,34 +132,56 @@ class SelfIntentionalAgent(Agent):
 
 
   # in here sth goes wrong
+
   def update_mental_state(self, observation):
     card_knowledge = [card.__str__() for card in observation['pyhanabi'].card_knowledge()[0]]
-    print(card_knowledge)
 
-    if self.last_action is not None:
-      if self.last_action['action_type'] == 'DISCARD' or self.last_action['action_type'] == 'PLAY':
-        self.mental_state.pop(self.last_action['card_index'])
-        self.mental_state.append(self.unplayed_cards)
+    print(type(observation['pyhanabi'].card_knowledge()[0][0]))
+
+    print('built_knowledge:', card_knowledge)
+    # print(self.last_action)
+    # if self.last_action is not None:
+    #   if self.last_action['action_type'] == 'DISCARD' or self.last_action['action_type'] == 'PLAY':
+    #     print('mental state appended')
+    #     self.mental_state.pop(self.last_action['card_index'])
+    #     self.mental_state.append(self.unplayed_cards)
+    #     print('after appending ', self.mental_state)
+
+    for i in range(5):
+      self.mental_state[i] = copy.deepcopy(self.unplayed_cards)
+
+    # for c in range(5):
+    #   possibility_knowledge = card_knowledge[c].split('|')[1]
+    #   for color in ['R','G', 'B', 'W', 'Y']:
+    #     if color not in possibility_knowledge:
+    #       for i in range(5):
+    #         self.mental_state[c][i][self.color_encoding[color]] = 0
+
 
 
     for card_idx, knowledge in enumerate(card_knowledge):
+      # print(card_idx)
       possibility_knowledge = knowledge.split('|')[1]
+      # print(possibility_knowledge)
 
-      for color in ['R','G', 'B', 'W', 'Y']:
+      for c, color in enumerate(['R','G', 'B', 'W', 'Y']):
         if color not in possibility_knowledge:
+          # print(possibility_knowledge)
+          # print(color, 'not in k')
           for i in range(5):
-            self.mental_state[card_idx][i][self.color_encoding[color]] = 0
+            self.mental_state[card_idx][i][c] = 0
 
-      for rank in ['1','2','3','4','5']:
+      for r, rank in enumerate(['1','2','3','4','5']):
         if rank not in possibility_knowledge:
           for i in range(5):
-            self.mental_state[card_idx][int(rank)-1][i] = 0
+            self.mental_state[card_idx][r][i] = 0
+      # print(self.mental_state[card_idx])
 
-    for i, card in enumerate(self.mental_state):
-      for r, rank in enumerate(card):
-        for c, color in enumerate(rank):
-          if self.mental_state[i][r][c] != 0:
-            self.mental_state[i][r][c] = self.unplayed_cards[r][c]
+    # for i, card in enumerate(self.mental_state):
+    #   for r, rank in enumerate(card):
+    #     for c, color in enumerate(rank):
+    #       if self.mental_state[i][r][c] != 0:
+    #         self.mental_state[i][r][c] = self.unplayed_cards[r][c]
 
 
   def act(self, observation):
@@ -219,6 +242,10 @@ class SelfIntentionalAgent(Agent):
       self.update_mental_state(observation)
       print('Current Player Mental State: ', self.mental_state)
 
+      # latest_moves = list(observation['pyhanabi'].last_moves())
+      # if latest_moves:
+      #   print('last move: ', latest_moves[-1].move().type())
+      #   print('by player: ', latest_moves[-1].player().__str__())
       action = rules.PlaySafeCard(observation)
       if action is None:
         action = rules.OsawaDiscard(observation)
@@ -232,5 +259,5 @@ class SelfIntentionalAgent(Agent):
       return action
 
     else:
-      print('Other players menta; state: ', self.mental_state)
+      # print('Other players mental state: ', self.mental_state)
       return None
