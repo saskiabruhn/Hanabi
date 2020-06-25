@@ -105,14 +105,12 @@ def utility(intention, estimated_board, card_identities, last_action):
     return scores
 
 
-intention = 'play'
-card_identities = {'color': {'B': 1, 'R': 0, 'G': 0, 'Y': 0, 'W': 0},
-                   'rank': {'1': 1/5, '2': 1/5, '3': 1/5, '4': 1/5, '5': 1/5}}
 
-estimated_board = {'life_tokens': 3,
-                   'information_tokens': 8,
-                   'fireworks': {'R': 0, 'Y': 0, 'G': 0, 'W': 0, 'B': 0},
-                   'discard_pile': ['B2'],
+
+estimated_board = {'life_tokens': 1,
+                   'information_tokens': 7,
+                   'fireworks': {'R': 3, 'Y': 2, 'G': 4, 'W': 1, 'B': 2},
+                   'discard_pile': ['B2', 'B3', 'B2'],
                    'estimated_hands': [
                        [{'color': None, 'rank': -1},
                         {'color': None, 'rank': 0},
@@ -127,8 +125,10 @@ estimated_board = {'life_tokens': 3,
                     ]
                    }
 
-last_action = {'action_type': 'REVEAL_RANK', 'target_offset': 1, 'rank': 0}
-
+last_action = {'action_type': 'REVEAL_COLOR', 'target_offset': 1, 'color': 'B'}
+intention = 'play'
+card_identities = {'color': {'B': 1, 'R': 0, 'G': 0, 'Y': 0, 'W': 0},
+                   'rank': {'1': 1/5, '2': 1/5, '3': 1/5, '4': 1/5, '5': 1/5}}
 
 print(utility(intention, estimated_board, card_identities, last_action))
 
