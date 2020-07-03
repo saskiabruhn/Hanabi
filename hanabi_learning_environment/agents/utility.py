@@ -26,88 +26,107 @@ def remaining_copies(card, discard_pile):
 
     return total_copies - discarded_copies
 
-def utility(intention, estimated_board, card_identities, last_action):
-    scores = {}
-    for c in card_identities['color']:
-        if card_identities['color'][c] != 0:
-            for r in card_identities['rank']:
-                if card_identities['rank'][r] != 0:
-                    card = {'color': c, 'rank': r}
-                    score = 0
+def utility(intention, estimated_board, card):
+    score = 0
+
+    if intention == 'play':
+        # in intention is play and card is playable, this results in one more card on the fireworks.
+        # reward this.
+        if CardPlayable(card, estimated_board['fireworks']):
+            score += 10
+
+        # if intention is play and card is not playable at the time
+        else:
+            # punish loosing a card from stack
+            score -= 1
+
+            # punish getting a bomb depending on the number of bombs
+            if estimated_board['life_tokens'] == 3:
+                score -= 1
+            elif estimated_board['life_tokens'] == 2:
+                score -= 3
+            elif estimated_board['life_tokens'] == 1:
+                score -= 25
+
+            # if card would still have been relevant in the future, punish loosing it depending on
+            # the remaining copies of this card in the deck
+            if not CardUnplayable(card, estimated_board['fireworks']):
+                if remaining_copies(card, estimated_board['discard_pile']) == 2:
+                    score -= 1
+                elif remaining_copies(card, estimated_board['discard_pile']) == 1:
+                    score -= 2
+                elif remaining_copies(card, estimated_board['discard_pile']) == 0:
+                    score -= 5
 
 
-                    if last_action['action_type'] == 'REVEAL_RANK' or last_action['action_type'] == 'REVEAL_COLOR':
-                        # punish use of information token
-                        if estimated_board['information_tokens'] in [7,6,5]:
-                            score -= 0.2
-                        if estimated_board['information_tokens'] in [4, 3]:
-                            score -= 0.3
-                        if estimated_board['information_tokens'] in [2,1]:
-                            score -= 0.4
-                        if estimated_board['information_tokens'] == 0:
-                            score -= 0.5
+    elif intention == 'discard':
+        # punish loosing a card from stack
+        score -= 1
 
-                        if intention == 'play':
-                            if CardPlayable(card, estimated_board['fireworks']):
-                                score += 5
-                            else:
-                                if estimated_board['life_tokens'] == 3:
-                                    score -= 1
-                                elif estimated_board['life_tokens'] == 2:
-                                    score -= 3
-                                elif estimated_board['life_tokens'] == 1:
-                                    score -= 25
+        # reward ganing a hint token:
+        score += 0.5
 
-                                if not CardUnplayable(card, estimated_board['fireworks']):
-                                    if remaining_copies(card, estimated_board['discard_pile']) == 2:
-                                        score -= 1
-                                    elif remaining_copies(card, estimated_board['discard_pile']) == 1:
-                                        score -= 2
-                                    elif remaining_copies(card, estimated_board['discard_pile']) == 0:
-                                        score -= 5
+        # punish discarding a playable card
+        if CardPlayable(card, estimated_board['fireworks']):
+            score -= 5
 
+        # if card is not playable right now but would have been relevant in the future, punish
+        # discarding it depending on the number of remaining copies in the game
+        elif not CardUnplayable(card, estimated_board['fireworks']):
+            if remaining_copies(card, estimated_board['discard_pile']) == 2:
+                score -= 1
+            elif remaining_copies(card, estimated_board['discard_pile']) == 1:
+                score -= 2
+            elif remaining_copies(card, estimated_board['discard_pile']) == 0:
+                score -= 5
 
-                        elif intention == 'discard':
-                            # punishing discard actions after receiving a hint on this card in general
-                            score -= 0.3
+        # do we want to reward this additionally? I think rewarding gaining a hint token should be
+        # enough, so nothing happens here
+        elif CardUnplayable(card, estimated_board['fireworks']):
+            pass
 
-                            if CardPlayable(card, estimated_board['fireworks']):
-                                score -= 5
+    elif intention == 'keep':
+        # keeping a playable card is punished, because it does not help the game
+        if CardPlayable(card, estimated_board['fireworks']):
+            score -= 2
 
-                            elif not CardUnplayable(card, estimated_board['fireworks']):
-                                if remaining_copies(card, estimated_board['discard_pile']) == 2:
-                                    score -= 1
-                                elif remaining_copies(card, estimated_board['discard_pile']) == 1:
-                                    score -= 2
-                                elif remaining_copies(card, estimated_board['discard_pile']) == 0:
-                                    score -= 5
+        # if card is not playable right now but is relevant in the future of the game reward keeping
+        # this card depending on the remaining copies in the game
+        elif not CardUnplayable(card, estimated_board['fireworks']):
+            if remaining_copies(card, estimated_board['discard_pile']) == 2:
+                score += 1
+            elif remaining_copies(card, estimated_board['discard_pile']) == 1:
+                score += 2
+            elif remaining_copies(card, estimated_board['discard_pile']) == 0:
+                score += 5
 
-                            elif CardUnplayable(card, estimated_board['fireworks']):
-                                pass
-
-                        elif intention == 'keep':
-                            if CardPlayable(card, estimated_board['fireworks']):
-                                score -= 2
-
-                            elif not CardUnplayable(card, estimated_board['fireworks']):
-                                if remaining_copies(card, estimated_board['discard_pile']) == 2:
-                                    score += 1
-                                elif remaining_copies(card, estimated_board['discard_pile']) == 1:
-                                    score += 2
-                                elif remaining_copies(card, estimated_board['discard_pile']) == 0:
-                                    score += 5
-
-                            elif CardUnplayable(card, estimated_board['fireworks']):
-                                pass
-                    scores[str(c) + str(r)] = score
+        # punish keeping a useless card
+        elif CardUnplayable(card, estimated_board['fireworks']):
+            score -= 1
 
 
-    return scores
+    # elif last_action['action_type'] == 'PLAY':
+    #     if intention == 'play':
+    #         pass
+    #     if the last player
+    #     elif intention == 'discard':
+    #         score -=1
+    #     elif intention == 'keep':
+    #         pass
+    # elif last_action['action_type'] == 'DISCARD':
+    #     if intention == 'play':
+    #         pass
+    #     elif intention == 'discard':
+    #         pass
+    #     elif intention == 'keep':
+    #         pass
+    return score
 
 
 
 
-estimated_board = {'life_tokens': 1,
+
+estimated_board = {'life_tokens': 3,
                    'information_tokens': 7,
                    'fireworks': {'R': 3, 'Y': 2, 'G': 4, 'W': 1, 'B': 2},
                    'discard_pile': ['B2', 'B3', 'B2'],
@@ -127,9 +146,11 @@ estimated_board = {'life_tokens': 1,
 
 last_action = {'action_type': 'REVEAL_COLOR', 'target_offset': 1, 'color': 'B'}
 intention = 'play'
-card_identities = {'color': {'B': 1, 'R': 0, 'G': 0, 'Y': 0, 'W': 0},
-                   'rank': {'1': 1/5, '2': 1/5, '3': 1/5, '4': 1/5, '5': 1/5}}
+# remember, that rank 0 in cards means rank 1, so rank = 0 and fireworks = 0 means card is playable!
+card = {'color': 'B', 'rank': 2}
 
-print(utility(intention, estimated_board, card_identities, last_action))
 
+print('play: ', utility('play', estimated_board, card))
+print('discard: ', utility('discard', estimated_board, card))
+print('keep', utility('keep', estimated_board, card))
 
