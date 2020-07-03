@@ -104,22 +104,6 @@ def utility(intention, estimated_board, card):
         elif CardUnplayable(card, estimated_board['fireworks']):
             score -= 1
 
-
-    # elif last_action['action_type'] == 'PLAY':
-    #     if intention == 'play':
-    #         pass
-    #     if the last player
-    #     elif intention == 'discard':
-    #         score -=1
-    #     elif intention == 'keep':
-    #         pass
-    # elif last_action['action_type'] == 'DISCARD':
-    #     if intention == 'play':
-    #         pass
-    #     elif intention == 'discard':
-    #         pass
-    #     elif intention == 'keep':
-    #         pass
     return score
 
 
