@@ -6,7 +6,8 @@ def CardPlayable(card, fireworks):
     else:
         return False
 
-def CardUnplayable(card, fireworks):
+# Card is not needed anymore in the future
+def CardUseless(card, fireworks):
     if card['color'] is None or card['rank'] is None:
         return False
     if fireworks[card['color']] > int(card['rank']):
@@ -50,7 +51,7 @@ def utility(intention, estimated_board, card):
 
             # if card would still have been relevant in the future, punish loosing it depending on
             # the remaining copies of this card in the deck
-            if not CardUnplayable(card, estimated_board['fireworks']):
+            if not CardUseless(card, estimated_board['fireworks']):
                 if remaining_copies(card, estimated_board['discard_pile']) == 2:
                     score -= 1
                 elif remaining_copies(card, estimated_board['discard_pile']) == 1:
@@ -63,7 +64,7 @@ def utility(intention, estimated_board, card):
         # punish loosing a card from stack
         score -= 1
 
-        # reward ganing a hint token:
+        # reward gaining a hint token:
         score += 0.5
 
         # punish discarding a playable card
@@ -72,7 +73,7 @@ def utility(intention, estimated_board, card):
 
         # if card is not playable right now but would have been relevant in the future, punish
         # discarding it depending on the number of remaining copies in the game
-        elif not CardUnplayable(card, estimated_board['fireworks']):
+        elif not CardUseless(card, estimated_board['fireworks']):
             if remaining_copies(card, estimated_board['discard_pile']) == 2:
                 score -= 1
             elif remaining_copies(card, estimated_board['discard_pile']) == 1:
@@ -82,7 +83,7 @@ def utility(intention, estimated_board, card):
 
         # do we want to reward this additionally? I think rewarding gaining a hint token should be
         # enough, so nothing happens here
-        elif CardUnplayable(card, estimated_board['fireworks']):
+        elif CardUseless(card, estimated_board['fireworks']):
             pass
 
     elif intention == 'keep':
@@ -92,7 +93,7 @@ def utility(intention, estimated_board, card):
 
         # if card is not playable right now but is relevant in the future of the game reward keeping
         # this card depending on the remaining copies in the game
-        elif not CardUnplayable(card, estimated_board['fireworks']):
+        elif not CardUseless(card, estimated_board['fireworks']):
             if remaining_copies(card, estimated_board['discard_pile']) == 2:
                 score += 1
             elif remaining_copies(card, estimated_board['discard_pile']) == 1:
@@ -101,7 +102,7 @@ def utility(intention, estimated_board, card):
                 score += 5
 
         # punish keeping a useless card
-        elif CardUnplayable(card, estimated_board['fireworks']):
+        elif CardUseless(card, estimated_board['fireworks']):
             score -= 1
 
     return score
